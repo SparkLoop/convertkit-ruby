@@ -1,4 +1,4 @@
-module Convertkit
+module ConvertkitV4
   class Client
     module CustomFields
 
@@ -8,7 +8,9 @@ module Convertkit
 
       def add_custom_field(options = {})
         connection.post("custom_fields") do |f|
-          f.params['label'] = options[:label]
+          f.body = JSON.generate({
+            label: options[:label]
+          })
         end
       end
 
@@ -18,7 +20,9 @@ module Convertkit
 
       def update_custom_field(custom_field_id, options = {})
         connection.put("custom_fields/#{custom_field_id}") do |f|
-          f.params['label'] = options[:label]
+          f.body = JSON.generate({
+            label: options[:label]
+          })
         end
       end
 

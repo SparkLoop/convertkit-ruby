@@ -1,4 +1,4 @@
-module Convertkit
+module ConvertkitV4
   class Client
     module Subscribers
       def subscribers(options = {})
@@ -9,15 +9,28 @@ module Convertkit
         connection.get("subscribers/#{subscriber_id}")
       end
 
+      def add_subscriber(options = {})
+        response = connection.post("subscribers") do |f|
+          f.body = JSON.generate({
+            email_address: options[:email_address],
+            first_name: options[:first_name]
+          })
+        end
+        response.body
+      end
+
       def subscriber_tags(subscriber_id)
         connection.get("subscribers/#{subscriber_id}/tags")
       end
 
       def update_subscriber(subscriber_id, options = {})
         response = connection.put("subscribers/#{subscriber_id}") do |f|
-          f.params["email_address"] = options[:email_address] if options[:email_address]
-          f.params["fields"] = options[:fields] if options[:fields]
-          f.params["first_name"] = options[:first_name] if options[:first_name]
+          body = {}
+          body[:email_address] = options[:email_address] if options[:email_address]
+          body[:fields] = options[:fields] if options[:fields]
+          body[:first_name] = options[:first_name] if options[:first_name]
+
+          f.body = JSON.generate(body)
         end
         response.body
       end
