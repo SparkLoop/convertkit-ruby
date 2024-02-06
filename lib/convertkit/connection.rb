@@ -1,21 +1,18 @@
-require "convertkit_v4/errors"
+require "convertkit/errors"
 require "faraday"
 require "faraday_middleware"
 require "json"
 
-module ConvertkitV4
+module Convertkit
   class Connection
     attr_reader :http_connection
 
-    API_URL = "https://api.convertkit.com/"
-    API_VERSION_PATH = "alpha/"
-
-    def initialize(access_token: nil)
-      @http_connection = faraday_connection(access_token)
+    def initialize(api_key: nil, api_secret: nil)
+      @http_connection = faraday_connection(api_key, api_secret)
     end
 
     def content_type
-      "application/json"
+      "application/vnd.api+json"
     end
 
     def get(*args, &blk)
@@ -36,18 +33,20 @@ module ConvertkitV4
 
     private
 
-    def faraday_connection(access_token)
+    def faraday_connection(api_key, api_secret)
       Faraday.new do |f|
-        f.url_prefix = "#{API_URL}#{API_VERSION_PATH}"
+        f.url_prefix = "https://api.convertkit.com/v3/"
         f.adapter :net_http
 
-        f.options.timeout = ConvertkitV4.configuration.timeout
-        f.options.open_timeout = ConvertkitV4.configuration.open_timeout
+        f.options.timeout = Convertkit.configuration.timeout
+        f.options.open_timeout = Convertkit.configuration.open_timeout
 
+        f.headers['User-Agent'] = "Convertkit-Ruby v#{Convertkit::VERSION}"
         f.headers['Content-Type'] = content_type
         f.headers['Accept'] = "*/*"
 
-        f.params['access_token'] = access_token if access_token
+        f.params['api_secret'] = api_secret if api_secret
+        f.params['api_key'] = api_key if api_key
 
         f.response :json, content_type: /\bjson$/
       end
@@ -70,13 +69,6 @@ module ConvertkitV4
     def handle_error_response(response)
       case response.status
       when 401
-        authenticate_header = response.headers['WWW-Authenticate']
-        if authenticate_header && authenticate_header.include?('invalid_token')
-          error_description = authenticate_header.match(/error_description="(.+)"/)[1]
-          if error_description == 'The access token expired'
-            raise ExpiredTokenError.new(response.body)
-          end
-        end
         raise AuthorizationError.new(response.body)
       when 404
         raise NotFoundError.new(response.body)
