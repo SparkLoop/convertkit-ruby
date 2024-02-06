@@ -1,8 +1,8 @@
-module Convertkit
+module ConvertkitV4
   class Client
     module Sequences
       def sequences
-        connection.get("sequences")
+        connection.get("sequences").body["sequences"]
       end
 
       def add_subscriber_to_sequence(sequence_id, email, options = {})

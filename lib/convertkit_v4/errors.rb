@@ -1,7 +1,8 @@
-module Convertkit
+module ConvertkitV4
   class Error < StandardError; end
 
   class AuthorizationError < Error; end
+  class ExpiredTokenError < Error; end
   class ConnectionError < Error; end
   class NotFoundError < Error; end
   class ServerError < Error; end
