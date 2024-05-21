@@ -37,7 +37,7 @@ module ConvertkitV4
       end
 
       def unsubscribe(subscriber_id)
-        connection.post("subscribers/#{subscriber_id}/unsubscribe").body
+        connection.post("subscribers/#{subscriber_id}/unsubscribe")
       end
 
       def subscriber_tags(subscriber_id)
