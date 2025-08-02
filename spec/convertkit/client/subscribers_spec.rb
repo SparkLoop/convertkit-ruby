@@ -31,6 +31,14 @@ module Convertkit
         end
       end
 
+      describe "#subscriber_stats" do
+        it "sends the right request" do
+          subscriber_id = ENV['SUBSCRIBER_ID']
+          r = @client.subscriber_stats(subscriber_id)
+          expect(r.success?).to be_truthy
+        end
+      end
+
       describe "#update_subscriber" do
         it "updates a subscriber" do
           old_email = "old-email-#{Time.now.to_i}@example.com"
